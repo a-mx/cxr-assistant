@@ -7,6 +7,16 @@
     {{ form.hidden_tag() }}
 
     <p>
+        {{ form.patient_id.label }}<br>
+        {{ form.patient_id() }}<br>
+
+        {% for error in form.patient_id.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+
+
+    <p>
         {{ form.frontal_image.label }}<br>
         {{ form.frontal_image() }}<br>
         {% for error in form.frontal_image.errors %}

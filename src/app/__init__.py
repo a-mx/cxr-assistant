@@ -4,7 +4,7 @@ from src.app.config import Config
 from src.app.auth.routes import auth_bp
 from src.app.main.routes import main_bp
 from src.app.analyze.routes import analyze_bp
-
+from src.app.patient.routes import patient_bp
 from src.app.extensions import db, login_manager, csrf, model_registry, migrate
 
 def create_app(
@@ -31,5 +31,6 @@ def create_app(
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(analyze_bp)
+    app.register_blueprint(patient_bp)
 
     return app

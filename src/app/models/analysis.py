@@ -17,8 +17,8 @@ class Analysis(db.Model):
 
     patient_id = db.Column(
         db.Integer,
-        db.ForeignKey("patient.id", ondelete="SET NULL"),
-        nullable=True,
+        db.ForeignKey("patient.id", ondelete="RESTRICT"),
+        nullable=False,
         index=True,
     )
 

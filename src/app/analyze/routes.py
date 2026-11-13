@@ -26,6 +26,7 @@ from src.app.analyze.forms import AnalyzeForm, ReportEditForm
 from src.app.services.pipeline import analyze_image
 from src.app.models import Analysis, AuditLog, ReportRevision, BoundingBox
 from src.app.extensions import db
+from src.app.models import Patient
 
 def _normalize_to_uint8(array) -> np.ndarray:
     array = np.asarray(array, dtype=np.float32)
@@ -88,7 +89,6 @@ def _save_upload(file_storage) -> tuple[str, Path]:
 def _can_access_analysis(analysis):
     return (
         current_user.is_admin
-        or current_user.role == "radiologist"
         or analysis.user_id == current_user.id
     )
 
@@ -96,6 +96,36 @@ def _can_access_analysis(analysis):
 @login_required
 def submit():
     form = AnalyzeForm()
+
+    patients = Patient.query.order_by(
+        Patient.surname,
+        Patient.name,
+    ).all()
+
+    form.patient_id.choices = [
+        (
+            patient.id,
+            f"{patient.name} {patient.surname} "
+            f"(****{patient.pesel[-4:]})",
+        )
+        for patient in patients
+    ]
+
+    selected_patient_id = request.args.get(
+        "patient_id",
+        type=int,
+    )
+
+    if (
+        request.method == "GET"
+        and selected_patient_id
+        and selected_patient_id in {
+            patient.id for patient in patients
+        }
+    ):
+        form.patient_id.data = selected_patient_id
+
+
     if form.validate_on_submit():
         original_name, image_path = _save_upload(form.frontal_image.data)
         lateral_name = None
@@ -113,8 +143,9 @@ def submit():
             top_k=k,
             strategy="image_only",
         )
+
         analysis = Analysis(
-            patient_id=patient.id,
+            patient_id=form.patient_id.data,
             user_id=current_user.id,
             image_filename=original_name,
             lateral_filename=lateral_name,
