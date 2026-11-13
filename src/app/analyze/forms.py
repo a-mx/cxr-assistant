@@ -56,4 +56,3 @@ class ReportEditForm(FlaskForm):
     )
 
     submit = SubmitField("Save revision")
-    

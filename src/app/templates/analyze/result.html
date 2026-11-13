@@ -14,7 +14,7 @@
 <h2>Frontal image</h2>
 <div class="image-viewer">
     <img
-        src="{{ url_for('main.analysis_image', analysis_id=analysis.id) }}"
+        src="{{ url_for('analyze.get_image', analysis_id=analysis.id) }}"
         alt="Frontal chest X-ray"
     >
 
@@ -37,7 +37,7 @@
 <h2>Lateral image</h2>
 <div class="image-viewer">
     <img
-        src="{{ url_for('main.analysis_image', analysis_id=analysis.id, view='lateral') }}"
+        src="{{ url_for('analyze.get_image', analysis_id=analysis.id, view='lateral') }}"
         alt="Lateral chest X-ray"
     >
 
@@ -71,6 +71,9 @@
 
 <h2>Report</h2>
 <pre>{{ analysis.current_report }}</pre>
+
+<p><a href="{{ url_for('analyze.edit_result', analysis_id=analysis.id) }}">Edit report</a></p>
+<p><a href="{{ url_for('analyze.result_history', analysis_id=analysis.id) }}">View revisions</a></p>
 
 <script>
     const toggleButton = document.getElementById("toggle-boxes");

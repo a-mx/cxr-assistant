@@ -19,12 +19,12 @@
             <td>{{ a.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
             <td>{{ a.image_filename }}</td>
             <td>{{ a.short_report }}</td>
-            <td><a href="{{ url_for('main.result', analysis_id=a.id) }}">View</a></td>
+            <td><a href="{{ url_for('analyze.result', analysis_id=a.id) }}">View</a></td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 {% else %}
-<p>No analyses yet. <a href="{{ url_for('main.analyze') }}">Analyze your first image</a>.</p>
+<p>No analyses yet. <a href="{{ url_for('analyze.submit') }}">Analyze your first image</a>.</p>
 {% endif %}
 {% endblock %}
