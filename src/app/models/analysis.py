@@ -14,6 +14,19 @@ class Analysis(db.Model):
         nullable=False,
         index=True,
     )
+
+    patient_id = db.Column(
+        db.Integer,
+        db.ForeignKey("patient.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
+    patient = db.relationship(
+        "Patient",
+        back_populates="analyses",
+    )
+
     image_filename = db.Column(db.String(255), nullable=False)
     lateral_filename =  db.Column(db.String(255), nullable=True)
 

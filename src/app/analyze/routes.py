@@ -114,6 +114,7 @@ def submit():
             strategy="image_only",
         )
         analysis = Analysis(
+            patient_id=patient.id,
             user_id=current_user.id,
             image_filename=original_name,
             lateral_filename=lateral_name,
