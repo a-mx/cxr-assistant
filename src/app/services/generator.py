@@ -142,13 +142,17 @@ class Generator:
                 or not label
             ):
                 raise ValueError("Invalid bounding box returned by model.")
+            
+            view = item.get("view")
+            
+            if view not in {"frontal", "lateral"}:
+                raise ValueError(f"Invalid or missing bounding box view: {view!r}"
+            )
 
             bounding_boxes.append(
                 {
                     "label": label,
-                    "view": item.get("view", "frontal")
-                    if item.get("view", "frontal") in {"frontal", "lateral"}
-                    else "frontal",
+                    "view": view,
                     "x0": x0 / 1000,
                     "y0": y0 / 1000,
                     "x1": x1 / 1000,

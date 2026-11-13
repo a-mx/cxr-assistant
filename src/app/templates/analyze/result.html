@@ -11,51 +11,75 @@
 {% endif %}
 
 
-<h2>Frontal image</h2>
-<div class="image-viewer">
-    <img
-        src="{{ url_for('analyze.get_image', analysis_id=analysis.id) }}"
-        alt="Frontal chest X-ray"
-    >
+<div class="image-tabs" role="tablist">
+    <button type="button" class="image-tab active" data-layout="frontal">
+        Frontal
+    </button>
 
-    {% for box in analysis.bounding_boxes if box.view == "frontal" %}
-    <div
-        class="bounding-box"
-        style="
-            left: {{ box.x0 * 100 }}%;
-            top: {{ box.y0 * 100 }}%;
-            width: {{ (box.x1 - box.x0) * 100 }}%;
-            height: {{ (box.y1 - box.y0) * 100 }}%;
-        "
-    >
-        <span>{{ box.label }}</span>
-    </div>
-    {% endfor %}
+    {% if analysis.stored_lateral_image_name %}
+    <button type="button" class="image-tab" data-layout="lateral">
+        Lateral
+    </button>
+
+    <button type="button" class="image-tab" data-layout="both">
+        Both
+    </button>
+    {% endif %}
 </div>
 
-{% if analysis.stored_lateral_image_name %}
-<h2>Lateral image</h2>
-<div class="image-viewer">
-    <img
-        src="{{ url_for('analyze.get_image', analysis_id=analysis.id, view='lateral') }}"
-        alt="Lateral chest X-ray"
-    >
+<div class="image-layout" data-layout="frontal">
+    <div class="image-card" data-image-view="frontal">
+        <h2>Frontal image</h2>
 
-    {% for box in analysis.bounding_boxes if box.view == "lateral" %}
-    <div
-        class="bounding-box"
-        style="
-            left: {{ box.x0 * 100 }}%;
-            top: {{ box.y0 * 100 }}%;
-            width: {{ (box.x1 - box.x0) * 100 }}%;
-            height: {{ (box.y1 - box.y0) * 100 }}%;
-        "
-    >
-        <span>{{ box.label }}</span>
+        <div class="image-viewer">
+            <img
+                src="{{ url_for('analyze.get_image', analysis_id=analysis.id) }}"
+                alt="Frontal chest X-ray"
+            >
+
+            {% for box in analysis.bounding_boxes if box.view == "frontal" %}
+            <div
+                class="bounding-box"
+                style="
+                    left: {{ box.x0 * 100 }}%;
+                    top: {{ box.y0 * 100 }}%;
+                    width: {{ (box.x1 - box.x0) * 100 }}%;
+                    height: {{ (box.y1 - box.y0) * 100 }}%;
+                "
+            >
+                <span>{{ box.label }}</span>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-    {% endfor %}
+
+    {% if analysis.stored_lateral_image_name %}
+    <div class="image-card" data-image-view="lateral">
+        <h2>Lateral image</h2>
+
+        <div class="image-viewer">
+            <img
+                src="{{ url_for('analyze.get_image', analysis_id=analysis.id, view='lateral') }}"
+                alt="Lateral chest X-ray"
+            >
+
+            {% for box in analysis.bounding_boxes if box.view == "lateral" %}
+            <div
+                class="bounding-box"
+                style="
+                    left: {{ box.x0 * 100 }}%;
+                    top: {{ box.y0 * 100 }}%;
+                    width: {{ (box.x1 - box.x0) * 100 }}%;
+                    height: {{ (box.y1 - box.y0) * 100 }}%;
+                "
+            >
+                <span>{{ box.label }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 
 {% if analysis.bounding_boxes %}
 <div class="bounding-box-controls">
@@ -95,4 +119,20 @@
     }
 </script>
 
+<script>
+    const imageTabs = document.querySelectorAll(".image-tab");
+    const imageLayout = document.querySelector(".image-layout");
+
+    imageTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+            const layout = tab.dataset.layout;
+
+            imageLayout.dataset.layout = layout;
+
+            imageTabs.forEach((item) => {
+                item.classList.toggle("active", item === tab);
+            });
+        });
+    });
+</script>
 {% endblock %}

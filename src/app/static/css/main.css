@@ -105,6 +105,48 @@ pre {
     pointer-events: none;
 }
 
+.image-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.image-tab {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.image-tab.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+.image-layout {
+    display: block;
+}
+
+.image-layout[data-layout="frontal"] [data-image-view="lateral"],
+.image-layout[data-layout="lateral"] [data-image-view="frontal"] {
+    display: none;
+}
+
+.image-layout[data-layout="both"] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.image-card h2 {
+    margin-top: 0;
+}
+
+@media (max-width: 700px) {
+    .image-layout[data-layout="both"] {
+        grid-template-columns: 1fr;
+    }
+}
+
 .image-viewer.show-boxes .bounding-box {
     display: block;
 }

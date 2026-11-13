@@ -113,7 +113,6 @@ def submit():
             top_k=k,
             strategy="image_only",
         )
-
         analysis = Analysis(
             user_id=current_user.id,
             image_filename=original_name,
@@ -135,7 +134,7 @@ def submit():
             analysis.bounding_boxes.append(
                 BoundingBox(
                     label=box["label"],
-                    view=box.get("view", "frontal"),
+                    view=box.get("view"),
                     x0=box["x0"],
                     y0=box["y0"],
                     x1=box["x1"],
