@@ -46,6 +46,19 @@ input[type="submit"]:hover {
     background: var(--color-primary-hover);
 }
 
+.checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-field input[type="checkbox"] {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
 input,
 textarea {
     width: 100%;
