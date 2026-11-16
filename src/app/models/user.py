@@ -31,6 +31,13 @@ class User(UserMixin, db.Model):
 
     password_hash = db.Column(db.String(256), nullable=False)
 
+    facility_id = db.Column(
+        db.Integer,
+        db.ForeignKey("facility.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
     role = db.Column(
         db.String(20),
         default="user",
@@ -66,6 +73,10 @@ class User(UserMixin, db.Model):
         passive_deletes=True,
     )
 
+    facility = db.relationship(
+        "Facility",
+        back_populates="users",
+    )
 
     def set_password(self, password: str) -> None:
         self.password_hash = _get_hasher().hash(password)
