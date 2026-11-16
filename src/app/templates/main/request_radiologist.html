@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Request radiologist role</h1>
+
+{% if pending_request %}
+<p>Your request is pending administrator review.</p>
+{% else %}
+<p>Submit a request to receive access to radiologist features.</p>
+<form method="post">
+    {{ form.hidden_tag() }}
+    {{ form.submit() }}
+</form>
+{% endif %}
+{% endblock %}

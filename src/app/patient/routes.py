@@ -16,7 +16,7 @@ from src.app.models import Patient, AuditLog
 
 
 def _can_manage_patients() -> bool:
-    return current_user.role in {"admin", "user"}
+    return current_user.role == "radiologist"
 
 
 @patient_bp.route("/")
@@ -28,7 +28,7 @@ def index():
     patients = Patient.query.order_by(
         Patient.surname,
         Patient.name,
-    ).all()
+    ).filter_by(user_id=current_user.id).all()
 
     return render_template(
         "patient/index.html",
@@ -49,6 +49,7 @@ def new():
             name=form.name.data.strip(),
             surname=form.surname.data.strip(),
             pesel=form.pesel.data.strip(),
+            user_id=current_user.id,
         )
 
         try:

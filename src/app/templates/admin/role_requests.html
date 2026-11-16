@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Radiologist role requests</h1>
+
+{% if role_requests %}
+<table border="1" cellpadding="8">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Requested role</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for role_request in role_requests %}
+        <tr>
+            <td>{{ role_request.user.username }}</td>
+            <td>{{ role_request.requested_role }}</td>
+            <td>{{ role_request.status }}</td>
+            <td>{{ role_request.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>
+                {% if role_request.status == "pending" %}
+                <form method="post"
+                      action="{{ url_for('admin.approve_role_request', role_request_id=role_request.id) }}"
+                      style="display:inline">
+                    {{ decision_form.hidden_tag() }}
+                    <button type="submit">Approve</button>
+                </form>
+                <form method="post"
+                      action="{{ url_for('admin.reject_role_request', role_request_id=role_request.id) }}"
+                      style="display:inline">
+                    {{ decision_form.hidden_tag() }}
+                    <button type="submit">Reject</button>
+                </form>
+                {% else %}
+                Reviewed{% if role_request.reviewed_by %} by {{ role_request.reviewed_by.username }}{% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No role requests found.</p>
+{% endif %}
+{% endblock %}

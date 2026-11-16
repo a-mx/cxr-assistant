@@ -88,16 +88,18 @@ def _save_upload(file_storage) -> tuple[str, Path]:
 
 def _can_access_analysis(analysis):
     return (
-        current_user.is_admin
-        or analysis.user_id == current_user.id
+        current_user.is_admin or current_user.role == "radiologist"
     )
 
 @analyze_bp.route('/submit', methods=['GET', 'POST'])
 @login_required
 def submit():
+    if current_user.role != "radiologist":
+        abort(403)
+
     form = AnalyzeForm()
 
-    patients = Patient.query.order_by(
+    patients = Patient.query.filter_by(user_id=current_user.id).order_by(
         Patient.surname,
         Patient.name,
     ).all()
@@ -239,7 +241,7 @@ def result(analysis_id: int):
         flash("Analysis not found.", "warning")
         return redirect(url_for("analyze.history"))
 
-    if not current_user.is_admin and analysis.user_id != current_user.id:
+    if not _can_access_analysis(analysis):
         flash("You do not have permission to view this analysis.", "danger")
         return redirect(url_for("analyze.history"))
 
@@ -345,6 +347,9 @@ def result_history(analysis_id: int):
 @analyze_bp.route("/history")
 @login_required
 def history():
+    if current_user.role not in {"radiologist", "admin"}:
+        abort(403)
+
     query = Analysis.query
 
     if not current_user.is_admin:
