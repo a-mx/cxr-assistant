@@ -18,7 +18,7 @@
                 {% if current_user.role == "radiologist" %}
                     <a href="{{ url_for('analyze.submit') }}">Analyze</a>
                 {% endif %}
-                {% if current_user.role in ("radiologist", "admin") %}
+                {% if current_user.role == "radiologist" %}
                     <a href="{{ url_for('analyze.history') }}">History</a>
                 {% endif %}
                 {% if current_user.is_admin %}

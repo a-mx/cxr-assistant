@@ -27,6 +27,11 @@ from src.app.services.pipeline import analyze_image
 from src.app.models import Analysis, AuditLog, ReportRevision, BoundingBox
 from src.app.extensions import db
 from src.app.models import Patient
+from src.app.auth.permissions import (
+    can_access_analysis,
+    can_access_patient,
+    can_manage_patients,
+)
 
 def _normalize_to_uint8(array) -> np.ndarray:
     array = np.asarray(array, dtype=np.float32)
@@ -87,19 +92,17 @@ def _save_upload(file_storage) -> tuple[str, Path]:
     return original_name, converted
 
 def _can_access_analysis(analysis):
-    return (
-        current_user.is_admin or current_user.role == "radiologist"
-    )
+    return can_access_analysis(current_user, analysis)
 
 @analyze_bp.route('/submit', methods=['GET', 'POST'])
 @login_required
 def submit():
-    if current_user.role != "radiologist":
+    if not can_manage_patients(current_user):
         abort(403)
 
     form = AnalyzeForm()
 
-    patients = Patient.query.filter_by(user_id=current_user.id).order_by(
+    patients = Patient.query.filter_by(facility_id=current_user.facility_id).order_by(
         Patient.surname,
         Patient.name,
     ).all()
@@ -129,6 +132,10 @@ def submit():
 
 
     if form.validate_on_submit():
+        patient = db.session.get(Patient, form.patient_id.data)
+        if patient is None or not can_access_patient(current_user, patient):
+            abort(403)
+
         original_name, image_path = _save_upload(form.frontal_image.data)
         lateral_name = None
         lateral_path = None
@@ -347,13 +354,12 @@ def result_history(analysis_id: int):
 @analyze_bp.route("/history")
 @login_required
 def history():
-    if current_user.role not in {"radiologist", "admin"}:
+    if not can_manage_patients(current_user):
         abort(403)
 
-    query = Analysis.query
-
-    if not current_user.is_admin:
-        query = query.filter_by(user_id=current_user.id)
+    query = Analysis.query.join(Patient).filter(
+        Patient.facility_id == current_user.facility_id
+    )
 
     analyses = query.order_by(Analysis.created_at.desc()).all()
 

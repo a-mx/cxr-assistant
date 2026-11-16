@@ -5,10 +5,11 @@ from src.app.admin import admin_bp
 from src.app.admin.forms import RoleDecisionForm
 from src.app.extensions import db
 from src.app.models import AuditLog, RoleRequest, User
+from src.app.auth.permissions import can_manage_role_requests
 
 
 def _require_admin() -> None:
-    if not current_user.is_admin:
+    if not can_manage_role_requests(current_user):
         abort(403)
 
 

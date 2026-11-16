@@ -13,22 +13,19 @@ from src.app.patient import patient_bp
 from src.app.patient.forms import PatientForm
 from src.app.extensions import db
 from src.app.models import Patient, AuditLog
-
-
-def _can_manage_patients() -> bool:
-    return current_user.role == "radiologist"
+from src.app.auth.permissions import can_manage_patients
 
 
 @patient_bp.route("/")
 @login_required
 def index():
-    if not _can_manage_patients():
+    if not can_manage_patients(current_user):
         abort(403)
 
     patients = Patient.query.order_by(
         Patient.surname,
         Patient.name,
-    ).filter_by(user_id=current_user.id).all()
+    ).filter_by(facility_id=current_user.facility_id).all()
 
     return render_template(
         "patient/index.html",
@@ -39,7 +36,7 @@ def index():
 @patient_bp.route("/new", methods=["GET", "POST"])
 @login_required
 def new():
-    if not _can_manage_patients():
+    if not can_manage_patients(current_user):
         abort(403)
 
     form = PatientForm()
@@ -49,7 +46,7 @@ def new():
             name=form.name.data.strip(),
             surname=form.surname.data.strip(),
             pesel=form.pesel.data.strip(),
-            user_id=current_user.id,
+            facility_id=current_user.facility_id,
         )
 
         try:
