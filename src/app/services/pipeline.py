@@ -3,7 +3,7 @@ import time
 from dataclasses import dataclass, field
 from flask import current_app
 import pandas as pd
-
+from src.app.models.analysis import Analysis
 from src.app.services.retriever import Retriever
 
 @dataclass
@@ -14,27 +14,47 @@ class PipelineResult:
     inference_time_ms: int = 0
     confidence_score: float | None = None
 
-def analyze_image(
+def analyze(
     image_path: Path,
     lateral_image_path: Path | None,
     question: str,
     top_k: int,
+    patient_id: int,
     strategy: str = "image_only",
 ) -> PipelineResult:
+    if strategy == "image_only":
+        return image_only(
+            image_path,
+            lateral_image_path,
+            question,
+            top_k,
+            patient_id,
+        )
+
+    if strategy == "retrieval":
+        return retrieval(
+            image_path,
+            lateral_image_path,
+            question,
+            top_k,
+            patient_id,
+        )
+
+    raise ValueError(f"Unknown strategy: {strategy}")
+
+def image_only(
+        image_path: Path,
+        lateral_image_path: Path | None,
+        question: str,
+        top_k: int,
+        patient_id: int,
+    )-> PipelineResult: 
     start = time.perf_counter()
     
     registry = current_app.extensions["model_registry"]
-
-    #image_embedding = registry.encoder.encode_image(image_path)
-    images_index_path = current_app.config.get("IMAGES_INDEX_PATH")
-    dicom_ids_path = current_app.config.get("DICOM_IDS_PATH")
-
-    #retriever = Retriever(index_path=images_index_path, k=top_k, ids_path=dicom_ids_path)
-
-    #results = retriever.retrieve(embedding=image_embedding)
     results = []
 
-    context = "" #todo
+    context = "None" 
 
     generated = registry.generator.generate(
         image_path,
@@ -50,4 +70,60 @@ def analyze_image(
         retrieved_cases=results,
         inference_time_ms=elapsed_ms,
         confidence_score=0.5
+    )
+
+
+def retrieval(
+    image_path: Path,
+    lateral_image_path: Path | None,
+    question: str,
+    top_k: int,
+    patient_id: int,
+) -> PipelineResult:
+    start = time.perf_counter()
+
+    registry = current_app.extensions["model_registry"]
+
+    histories = (
+        Analysis.query
+        .filter_by(patient_id=patient_id)
+        .order_by(Analysis.created_at.desc())
+        .limit(top_k)
+        .all()
+    )
+
+    results = [
+        {
+            "analysis_id": analysis.id,
+            "created_at": analysis.created_at.isoformat(),
+            "report": analysis.current_report,
+        }
+        for analysis in histories
+    ]
+
+    if results:
+        context = "\n\n".join(
+            (
+                f"Analysis date: {item['created_at']}\n"
+                f"Report:\n{item['report']}"
+            )
+            for item in results
+        )
+    else:
+        context = "No previous analyses for this patient."
+
+    generated = registry.generator.generate(
+        image_path,
+        lateral_image=lateral_image_path,
+        retrieved_context=context,
+    )
+
+    elapsed_ms = int((time.perf_counter() - start) * 1000)
+
+    return PipelineResult(
+        report=generated.report,
+        bounding_boxes=generated.bounding_boxes,
+        retrieved_cases=results,
+        inference_time_ms=elapsed_ms,
+        confidence_score=0.5,
     )

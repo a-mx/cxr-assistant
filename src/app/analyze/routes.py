@@ -23,7 +23,7 @@ from pydicom.pixel_data_handlers.util import apply_voi_lut
 from werkzeug.utils import secure_filename
 from src.app.analyze import analyze_bp
 from src.app.analyze.forms import AnalyzeForm, ReportEditForm
-from src.app.services.pipeline import analyze_image
+from src.app.services.pipeline import analyze
 from src.app.models import Analysis, AuditLog, ReportRevision, BoundingBox
 from src.app.extensions import db
 from src.app.models import Patient
@@ -144,13 +144,16 @@ def submit():
             lateral_name, lateral_path = _save_upload(form.lateral_image.data)
 
         k = current_app.config["TOP_K"]
+
+        strategy=form.strategy.data
         
-        result = analyze_image(
+        result = analyze(
             image_path=image_path,
             lateral_image_path=lateral_path,
+            patient_id=form.patient_id.data,
             question=form.question.data or None,
             top_k=k,
-            strategy="image_only",
+            strategy=strategy
         )
 
         analysis = Analysis(

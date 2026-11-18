@@ -1,8 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import TextAreaField, SubmitField
+from wtforms import TextAreaField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional, ValidationError
-from wtforms import SelectField
 
 def validate_medical_image(form, field):
     filename = (field.data.filename or "").lower()
@@ -41,6 +40,18 @@ class AnalyzeForm(FlaskForm):
             Optional(),
             validate_medical_image,
             ],
+    )
+
+    strategy = SelectField(
+        "Analysis strategy",
+        choices=[
+            ("image_only", "Current image only"),
+            ("retrieval", "Patient history"),
+        ],
+        default="image_only",
+        validators=[
+            DataRequired(),
+        ],
     )
 
     max_question_length = 512
