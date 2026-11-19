@@ -2,9 +2,8 @@ from pathlib import Path
 import time
 from dataclasses import dataclass, field
 from flask import current_app
-import pandas as pd
 from src.app.models.analysis import Analysis
-from src.app.services.retriever import Retriever
+
 
 @dataclass
 class PipelineResult:
@@ -12,7 +11,6 @@ class PipelineResult:
     retrieved_cases: list[dict] = field(default_factory=list)
     bounding_boxes: list[dict] = field(default_factory=list)
     inference_time_ms: int = 0
-    confidence_score: float | None = None
 
 def analyze(
     image_path: Path,
@@ -69,7 +67,6 @@ def image_only(
         bounding_boxes=generated.bounding_boxes,
         retrieved_cases=results,
         inference_time_ms=elapsed_ms,
-        confidence_score=0.5
     )
 
 
@@ -125,5 +122,4 @@ def retrieval(
         bounding_boxes=generated.bounding_boxes,
         retrieved_cases=results,
         inference_time_ms=elapsed_ms,
-        confidence_score=0.5,
     )

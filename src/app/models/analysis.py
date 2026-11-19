@@ -44,12 +44,7 @@ class Analysis(db.Model):
         default="image_only",
     )
 
-    chexbert_f1 = db.Column(db.Float, nullable=True)
-    radgraph_f1 = db.Column(db.Float, nullable=True)
-    rouge_l = db.Column(db.Float, nullable=True)
-
     inference_time_ms = db.Column(db.Integer, nullable=True)
-    confidence_score = db.Column(db.Float, nullable=True)
 
     retrieved_cases = db.Column(db.JSON, nullable=True)
 
@@ -88,14 +83,6 @@ class Analysis(db.Model):
     @property
     def case_count(self) -> int:
         return len(self.retrieved_cases) if self.retrieved_cases else 0
-
-    @property
-    def has_metrics(self) -> bool:
-        return any([
-            self.chexbert_f1 is not None,
-            self.radgraph_f1 is not None,
-            self.rouge_l is not None,
-        ])
 
     def __repr__(self) -> str:
         return (
