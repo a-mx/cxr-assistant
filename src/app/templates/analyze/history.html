@@ -4,12 +4,13 @@
 <h1>Analysis History</h1>
 
 {% if analyses %}
-<table border="1" cellpadding="8">
+<table>
     <thead>
         <tr>
             <th>Date</th>
-            <th>Image</th>
-            <th>Preview</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>PESEL</th>
             <th></th>
         </tr>
     </thead>
@@ -17,8 +18,10 @@
         {% for a in analyses %}
         <tr>
             <td>{{ a.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
-            <td>{{ a.image_filename }}</td>
-            <td>{{ a.short_report }}</td>
+            <td>{{ a.patient.name }}</td>
+            <td>{{ a.patient.surname }}</td>
+            <td>{{ a.patient.pesel }}</td>
+
             <td><a href="{{ url_for('analyze.result', analysis_id=a.id) }}">View</a></td>
         </tr>
         {% endfor %}
