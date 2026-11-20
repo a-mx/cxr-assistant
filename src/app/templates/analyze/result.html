@@ -99,40 +99,5 @@
 <p><a href="{{ url_for('analyze.edit_result', analysis_id=analysis.id) }}">Edit report</a></p>
 <p><a href="{{ url_for('analyze.result_history', analysis_id=analysis.id) }}">View revisions</a></p>
 
-<script>
-    const toggleButton = document.getElementById("toggle-boxes");
-    const imageViewers = document.querySelectorAll(".image-viewer");
-
-    if (toggleButton && imageViewers.length) {
-        toggleButton.addEventListener("click", () => {
-            const visible = toggleButton.getAttribute("aria-pressed") !== "true";
-
-            imageViewers.forEach((imageViewer) => {
-                imageViewer.classList.toggle("show-boxes", visible);
-            });
-
-            toggleButton.setAttribute("aria-pressed", visible);
-            toggleButton.textContent = visible
-                ? "Hide bounding boxes"
-                : "Show bounding boxes";
-        });
-    }
-</script>
-
-<script>
-    const imageTabs = document.querySelectorAll(".image-tab");
-    const imageLayout = document.querySelector(".image-layout");
-
-    imageTabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-            const layout = tab.dataset.layout;
-
-            imageLayout.dataset.layout = layout;
-
-            imageTabs.forEach((item) => {
-                item.classList.toggle("active", item === tab);
-            });
-        });
-    });
-</script>
+<script src="{{ url_for('static', filename='js/result.js') }}"></script>
 {% endblock %}
