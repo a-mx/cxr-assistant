@@ -12,8 +12,9 @@ from sqlalchemy.exc import IntegrityError
 from src.app.patient import patient_bp
 from src.app.patient.forms import PatientForm
 from src.app.extensions import db
-from src.app.models import Patient, AuditLog
-from src.app.auth.permissions import can_manage_patients
+from src.app.models import Patient, AuditLog, Analysis
+from src.app.auth.permissions import can_manage_patients, can_access_patient
+
 
 
 @patient_bp.route("/")
@@ -79,4 +80,31 @@ def new():
     return render_template(
         "patient/new.html",
         form=form,
+    )
+
+@patient_bp.route("/<int:patient_id>")
+@login_required
+def history(patient_id: int):
+    if not can_manage_patients(current_user):
+        abort(403)
+
+    patient = db.session.get(Patient, patient_id)
+
+    if patient is None:
+        abort(404)
+
+    if not can_access_patient(current_user, patient):
+        abort(403)
+
+    analyses = (
+        Analysis.query
+        .filter_by(patient_id=patient.id)
+        .order_by(Analysis.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "patient/history.html",
+        patient=patient,
+        analyses=analyses,
     )

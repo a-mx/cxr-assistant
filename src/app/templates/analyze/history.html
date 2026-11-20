@@ -22,7 +22,7 @@
             <td>{{ a.patient.surname }}</td>
             <td>{{ a.patient.pesel }}</td>
 
-            <td><a href="{{ url_for('analyze.result', analysis_id=a.id) }}">View</a></td>
+            <td><a href="{{ url_for('analyze.result', analysis_id=a.id) }}" class="action-button">View</a></td>
         </tr>
         {% endfor %}
     </tbody>

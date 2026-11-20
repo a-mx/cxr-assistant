@@ -4,7 +4,7 @@
 <h1>Patients</h1>
 
 <p>
-    <a href="{{ url_for('patient.new') }}">Add patient</a>
+    <a href="{{ url_for('patient.new') }} " class="action-button">Add new patient </a>
 </p>
 
 {% if patients %}
@@ -24,8 +24,18 @@
             <td>{{ patient.surname }}</td>
             <td>{{ patient.name }}</td>
             <td>
-                <a href="{{ url_for('analyze.submit', patient_id=patient.id) }}">
+                <a
+                    href="{{ url_for('analyze.submit', patient_id=patient.id) }}"
+                    class="action-button"
+                >
                     Create analysis
+                </a>
+
+                <a
+                    href="{{ url_for('patient.history', patient_id=patient.id) }}"
+                    class="action-button"
+                >
+                    View history
                 </a>
             </td>
         </tr>
