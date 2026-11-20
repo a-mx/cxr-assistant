@@ -5,11 +5,11 @@
             rel="stylesheet"
             href="{{ url_for('static', filename='css/main.css') }}"
         >
-        <title>CXR-RAG</title>
+        <title>CXR-Helper</title>
     </head>
     <body>
         <div>
-            CXR-RAG: 
+            CXR-Helper: 
             <a href="{{ url_for('main.index') }}">Home</a>
             {% if current_user.is_authenticated %}
                 {% if current_user.role == "radiologist" %}

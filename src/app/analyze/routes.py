@@ -168,7 +168,6 @@ def submit():
             top_k=k,
             retrieval_strategy="image_only",
             inference_time_ms=result.inference_time_ms,
-            confidence_score=result.confidence_score,
             retrieved_cases=result.retrieved_cases,
         )
         db.session.add(analysis)

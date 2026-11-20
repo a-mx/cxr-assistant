@@ -40,15 +40,7 @@
             <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
-
-    <p>
-        {{ form.question.label }}<br>
-        {{ form.question(rows=4, cols=60) }}<br>
-        {% for error in form.question.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-
+    
     <p>{{ form.submit() }}</p>
 </form>
 {% endblock %}
