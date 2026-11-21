@@ -42,7 +42,6 @@ class Config:
 
     TOP_K = cfg["top_k"]
 
-    ENCODER_MODEL_PATH = MODEL_DIR.joinpath(cfg["encoder_model"])
     GENERATOR_MODEL_PATH = MODEL_DIR.joinpath(cfg["generator_model"])
 
 if __name__ == "__main__":
