@@ -10,7 +10,7 @@ from flask_login import current_user, login_required
 
 from src.app.extensions import db
 from src.app.main.forms import RadiologistRequestForm
-from src.app.models import AuditLog, RoleRequest
+from src.app.models import AuditLog, RoleRequest, Facility
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
@@ -31,7 +31,13 @@ def request_radiologist():
         requested_role="radiologist",
         status="pending",
     ).first()
+
     form = RadiologistRequestForm()
+
+    form.facility_id.choices = [
+        (facility.id, facility.name)
+        for facility in Facility.query.order_by(Facility.name).all()
+    ]
 
     if form.validate_on_submit():
         if pending_request:
@@ -40,7 +46,9 @@ def request_radiologist():
             db.session.add(RoleRequest(
                 user_id=current_user.id,
                 requested_role="radiologist",
+                facility_id=form.facility_id.data,
             ))
+
             AuditLog.log(
                 event_type="radiologist_role_requested",
                 user_id=current_user.id,

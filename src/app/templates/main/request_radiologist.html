@@ -8,6 +8,14 @@
 {% else %}
 <p>Submit a request to receive access to radiologist features.</p>
 <form method="post">
+    <p>
+        {{ form.facility_id.label }}<br>
+        {{ form.facility_id() }}<br>
+
+        {% for error in form.facility_id.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
     {{ form.hidden_tag() }}
     {{ form.submit() }}
 </form>

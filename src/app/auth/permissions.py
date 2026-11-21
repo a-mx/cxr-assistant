@@ -26,17 +26,15 @@ def can_manage_patients(user) -> bool:
 
 
 def can_access_facility(user, facility_id: int | None) -> bool:
-    #return (
-    #    can_manage_patients(user)
-    #    and facility_id is not None
-    #    and user.facility_id == facility_id
-    #)
-    return True
+    return (
+        can_manage_patients(user)
+        and facility_id is not None
+        and user.facility_id == facility_id
+    )
 
 
 def can_access_patient(user, patient) -> bool:
-    #return can_access_facility(user, patient.facility_id)
-    return True
+    return can_access_facility(user, patient.facility_id)
 
 
 def can_access_analysis(user, analysis) -> bool:

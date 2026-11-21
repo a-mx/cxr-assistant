@@ -2,11 +2,11 @@ from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from src.app.admin import admin_bp
-from src.app.admin.forms import RoleDecisionForm
+from src.app.admin.forms import RoleDecisionForm, FacilityForm
 from src.app.extensions import db
-from src.app.models import AuditLog, RoleRequest, User
+from src.app.models import AuditLog, RoleRequest, AuditLog, Facility
 from src.app.auth.permissions import can_manage_role_requests
-
+from sqlalchemy.exc import IntegrityError
 
 def _require_admin() -> None:
     if not can_manage_role_requests(current_user):
@@ -28,6 +28,63 @@ def role_requests():
         decision_form=decision_form,
     )
 
+@admin_bp.route("/facility/new", methods=["GET", "POST"])
+@login_required
+def add_facility():
+    _require_admin()
+
+    form = FacilityForm()
+
+    if form.validate_on_submit():
+        facility = Facility(
+            name=form.name.data.strip(),
+        )
+
+        try:
+            db.session.add(facility)
+            db.session.flush()
+
+            AuditLog.log(
+                event_type="facility_created",
+                user_id=current_user.id,
+                description=f"Created facility {facility.id}",
+                ip_address=request.remote_addr,
+                user_agent=request.headers.get("User-Agent", "")[:255],
+            )
+
+            db.session.commit()
+
+        except IntegrityError:
+            db.session.rollback()
+            form.name.errors.append(
+                "A facility with this name already exists."
+            )
+            return render_template(
+                "admin/facility/new.html",
+                form=form,
+            )
+
+        flash("Facility added successfully.", "success")
+        return redirect(url_for("admin.facility_index"))
+
+    return render_template(
+        "admin/facility/new.html",
+        form=form,
+    )
+
+
+@admin_bp.route("/facility")
+@login_required
+def facility_index():
+    _require_admin()
+
+    facilities = Facility.query.order_by(Facility.name).all()
+
+    return render_template(
+        "admin/facility/index.html",
+        facilities=facilities,
+    )
+
 
 def _decide_role_request(role_request_id: int, status: str):
     _require_admin()
@@ -43,6 +100,7 @@ def _decide_role_request(role_request_id: int, status: str):
     role_request.reviewed_at = db.func.now()
     if status == "approved":
         role_request.user.role = role_request.requested_role
+        role_request.user.facility_id = role_request.facility_id
 
     AuditLog.log(
         event_type=f"radiologist_role_request_{status}",

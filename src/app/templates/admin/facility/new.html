@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Add new facility</h1>
+
+<form method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}<br>
+
+        {% for error in form.name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+
+    <p>{{ form.submit() }}</p>
+</form>
+
+<p>
+    <a href="{{ url_for('admin.facility_index') }}">
+        Back to facilities
+    </a>
+</p>
+{% endblock %}

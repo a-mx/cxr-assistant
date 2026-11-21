@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Facilities</h1>
+
+<p>
+    <a href="{{ url_for('admin.add_facility') }}" class="action-button">Add new facility </a>
+</p>
+
+{% if facilities %}
+<table>
+    <thead>
+        <tr>
+
+            <th>Name</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in facilities %}
+        <tr>
+
+            <td>{{ f.name}}</td>
+            
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No facilities found.</p>
+{% endif %}
+{% endblock %}

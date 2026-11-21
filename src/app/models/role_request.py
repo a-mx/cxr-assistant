@@ -14,6 +14,18 @@ class RoleRequest(db.Model):
         index=True,
     )
     requested_role = db.Column(db.String(20), nullable=False)
+
+    facility_id = db.Column(
+        db.Integer,
+        db.ForeignKey("facility.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
+    facility = db.relationship(
+        "Facility",
+    )
+
     status = db.Column(
         db.String(20),
         nullable=False,
