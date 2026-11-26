@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Export report</h1>
+
+
+
+
+<form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.filetype.label }}<br>
+        {{ form.filetype() }}<br>
+        {% for error in form.filetype.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+
+    <p>{{ form.submit() }}</p>
+</form>
+
+<p>
+    <a href="{{ url_for('analyze.result', analysis_id=analysis.id) }}">
+        Back to report
+    </a>
+</p>
+
+{% endblock %}

@@ -75,3 +75,18 @@ class ReportEditForm(FlaskForm):
     )
 
     submit = SubmitField("Save revision")
+
+class ReportExportForm(FlaskForm):
+    
+    filetype = SelectField(
+        "Export filetype",
+        choices=[
+            ("pdf", "PDF"),
+        ],
+        default="pdf",
+        validators=[
+            DataRequired(),
+        ],
+    )
+
+    submit = SubmitField(label="Export")

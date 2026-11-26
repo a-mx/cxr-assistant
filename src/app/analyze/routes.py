@@ -22,8 +22,9 @@ from PIL import Image
 from pydicom.pixel_data_handlers.util import apply_voi_lut
 from werkzeug.utils import secure_filename
 from src.app.analyze import analyze_bp
-from src.app.analyze.forms import AnalyzeForm, ReportEditForm
+from src.app.analyze.forms import AnalyzeForm, ReportEditForm, ReportExportForm
 from src.app.services.pipeline import analyze
+from src.app.services.export import Export
 from src.app.models import Analysis, AuditLog, ReportRevision, BoundingBox
 from src.app.extensions import db
 from src.app.models import Patient
@@ -351,6 +352,38 @@ def result_history(analysis_id: int):
         analysis=analysis,
         revisions=revisions,
     )
+
+@analyze_bp.route("/result/<int:analysis_id>/export", methods=["GET", "POST"])
+@login_required
+def export(analysis_id: int):
+    analysis = db.session.get(Analysis, analysis_id)
+
+    if analysis is None:
+        flash("Analysis not found.", "warning")
+        return redirect(url_for("analyze.history"))
+
+    if not _can_access_analysis(analysis):
+        flash("You do not have permission to view this.", "danger")
+        return redirect(url_for("analyze.history"))
+    
+    form = ReportExportForm()
+
+    if form.validate_on_submit():
+        filetype = form.filetype.data
+        exporter = Export(
+            filetype=form.filetype.data,
+            analysis=analysis,
+        )
+        pdf_buffer = exporter.export()
+        return send_file(
+            pdf_buffer,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=f"analysis_{analysis.id}.pdf",
+        )
+    
+    return render_template("analyze/export.html", form=form, analysis=analysis)
+    
 
 
 @analyze_bp.route("/history")
